@@ -29,7 +29,7 @@ public class Database
         }
     }
 
-    public List<Account> GetAccountFromDB()
+    public List<Account> GetAccountFromDb()
     {
         return _mySqlConnection.Query<Account>("SELECT * FROM account").ToList();
     }

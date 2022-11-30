@@ -6,7 +6,7 @@ public class AccountController
     {
         string returnString = $"Username: {account.UserName}\n" +
                               $"Password: {account.Password}\n" +
-                              $"Name: {account.FirstName} {account.LastName}\n" +
+                              $"Name: {account.FirstName}{account.LastName}\n" +
                               $"Email: {account.Email}\n" +
                               $"Phone number: {account.PhoneNumber}\n" +
                               $"Permission ID: {account.PermissionId}";
