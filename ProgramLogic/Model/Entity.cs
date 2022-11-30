@@ -1,4 +1,4 @@
-namespace UserInterface;
+namespace ProgramLogic.Model;
 
 public abstract class Entity
 {

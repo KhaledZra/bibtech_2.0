@@ -1,4 +1,4 @@
-namespace UserInterface;
+namespace ProgramLogic.Model.Interface;
 
 public interface IAccount
 {

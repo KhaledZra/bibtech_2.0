@@ -1,7 +1,9 @@
-namespace UserInterface.DbManager;
+namespace DataManager;
 
 using MySqlConnector;
 using Dapper;
+using ProgramLogic.Model;
+
 
 public class Database
 {
@@ -19,13 +21,15 @@ public class Database
             UserID = "root"
         };
         
+        _mySqlConnection = new MySqlConnection(_mySqlConnectionStringBuilder.ConnectionString);
+        
         try
         {
-            _mySqlConnection = new MySqlConnection(_mySqlConnectionStringBuilder.ConnectionString);
+            _mySqlConnection.Open(); // Checks if connection can be opened
         }
-        catch (Exception e)
+        catch
         {
-            Console.WriteLine(e);
+            throw new Exception("Connection to DB failed!");
         }
     }
 

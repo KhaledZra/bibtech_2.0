@@ -1,11 +1,12 @@
-using UserInterface.Controller;
+namespace ProgramLogic.View;
 
-namespace UserInterface.View;
+using ProgramLogic.Model.Interface;
+using ProgramLogic.Handler;
 
 public class AccountView
 {
     public static void ShowAccount(IAccount account)
     {
-        Console.WriteLine(AccountController.GetAccount(account));
+        Console.WriteLine(AccountHandler.GetAccount(account));
     }
 }

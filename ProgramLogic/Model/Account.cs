@@ -1,4 +1,6 @@
-namespace UserInterface;
+namespace ProgramLogic.Model;
+
+using ProgramLogic.Model.Interface;
 
 public class Account : Entity, IAccount
 {

@@ -1,6 +1,8 @@
-namespace UserInterface.Controller;
+namespace ProgramLogic.Handler;
 
-public class AccountController
+using ProgramLogic.Model.Interface;
+
+public class AccountHandler
 {
     public static string GetAccount(IAccount account)
     {
