@@ -1,4 +1,6 @@
-﻿namespace UserInterface;
+﻿using System.ComponentModel.Design;
+
+namespace UserInterface;
 
 using UserInterface.Handler;
 using DataManager;

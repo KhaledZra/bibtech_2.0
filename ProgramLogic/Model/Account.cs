@@ -4,38 +4,32 @@ using ProgramLogic.Model.Interface;
 
 public class Account : Entity, IAccount
 {
-    public string UserName { get; set; }
-    public string Password { get; set; }
+    public string PinCode { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Email { get; set; }
     public string PhoneNumber { get; set; }
-    public int PermissionId { get; set; }
 
     // Load constructor from DB
-    public Account(int id, string user_Name, string password, string first_Name, string last_Name,
-        string email, string phone_Number, int permission_Id)
+    public Account(int id, string pin_code, string first_Name, string last_Name,
+        string email, string phone_Number)
     {
         Id = id;
-        UserName = user_Name;
-        Password = password;
+        PinCode = pin_code;
         FirstName = first_Name;
         LastName = last_Name;
         Email = email;
         PhoneNumber = phone_Number;
-        PermissionId = permission_Id;
     }
     
     // Save constructor
-    public Account(string userName, string password, string firstName, string lastName,
-        string email, string phoneNumber, int permissionId)
+    public Account(string pinCode, string firstName, string lastName,
+        string email, string phoneNumber)
     {
-        UserName = userName;
-        Password = password;
+        PinCode = pinCode;
         FirstName = firstName;
         LastName = lastName;
         Email = email;
         PhoneNumber = phoneNumber;
-        PermissionId = permissionId;
     }
 }

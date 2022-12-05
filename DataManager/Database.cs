@@ -33,8 +33,25 @@ public class Database
         }
     }
 
-    public List<Account> GetAccountFromDb()
+    public Account GetCustomerFromDb(int id)
     {
-        return _mySqlConnection.Query<Account>("SELECT * FROM account").ToList();
+        List <Account> result = _mySqlConnection.Query<Account>($"SELECT * FROM customer WHERE id = {id}").ToList();
+        if (result.Count() == 1)
+        {
+            return result[0];
+        }
+        else
+        {
+            throw new Exception("Error fetching customer from DB");
+        }
+    }
+
+    public bool VerifyCustomerLogin(int id, int pinCode)
+    {
+        string sqlCode = $"SELECT COUNT(id) FROM customer WHERE id = {id} AND pin_code = {pinCode}";
+        int result = _mySqlConnection.Query<int>(sqlCode).FirstOrDefault();
+
+        if (result == 1) return true;
+        return false;
     }
 }
