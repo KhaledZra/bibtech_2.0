@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Design;
+using System.Threading.Channels;
 
 namespace UserInterface;
 
@@ -11,7 +12,10 @@ internal class Program
         Database db = new Database();
         UIHandler uiController = new UIHandler();
 
-        uiController.RunProgram();
+        //uiController.RunProgram();
+
+        db.GetBooksFromDb().ForEach(book => Console.WriteLine($"Title: {book.Title}, Media: {book.MediaType.Name}"));
+        
     }
 }
 
