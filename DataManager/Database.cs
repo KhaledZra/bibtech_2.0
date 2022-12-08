@@ -143,17 +143,51 @@ public class Database
         return result.ToList();
     }
     
+    public List<Book> GetBooksWhereMediaFromDb(int whereMediaId, bool isCheckForAvailability = false)
+    {
+        string sqlCode;
+        
+        if (isCheckForAvailability && whereMediaId != 0)
+        {
+            sqlCode = "SELECT b.*, m.*, l.* " +
+                      "FROM book b " +
+                      "INNER JOIN media m on b.media_id = m.id " +
+                      "INNER JOIN library l on b.library_id = l.id " +
+                      $"WHERE b.is_available = 1 AND media_id = {whereMediaId};";
+        }
+        else
+        {
+            sqlCode = "SELECT b.*, m.*, l.* " +
+                      "FROM book b " +
+                      "INNER JOIN media m on b.media_id = m.id " +
+                      "INNER JOIN library l on b.library_id = l.id " +
+                      $"WHERE b.media_id = {whereMediaId};";
+        }
+
+        var result =_mySqlConnection.Query<Book, Media, Library, Book>(sqlCode, (b, m, l) =>
+            {
+                b.MediaType = m;
+                b.LibraryInfo = l;
+                return b;
+            },
+            splitOn: "library_id, name"
+        ).AsQueryable();
+
+        return result.ToList();
+    }
+    
     public List<Book> GetBooksJoinMediasFromDb()
     {
         string sqlCode = "SELECT b.*, m.* FROM book b INNER JOIN media m on b.media_id = m.id;";
 
+        // Uses Delegate Func to map tables and takes an anonymous method
         var result =_mySqlConnection.Query<Book, Media, Book>(sqlCode, (b, m) =>
-            {
+            { 
                 b.MediaType = m;
                 return b;
-            },
+            }, // lambda output
             splitOn: "media_id"
-        ).AsQueryable();
+        ).AsQueryable(); // in this case modifies book and throws it out with the new selected data from DB
 
         return result.ToList();
     }
@@ -161,5 +195,10 @@ public class Database
     public List<Library> GetLibrariesFromDb()
     {
         return _mySqlConnection.Query<Library>("SELECT * FROM library").ToList();
+    }
+    
+    public List<Media> GetMediasFromDb()
+    {
+        return _mySqlConnection.Query<Media>("SELECT * FROM media").ToList();
     }
 }

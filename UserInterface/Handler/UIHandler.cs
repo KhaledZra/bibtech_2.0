@@ -116,6 +116,33 @@ public class UIHandler
                     Console.WriteLine("Error!");
                 }
             }
+            else if (result == 4)
+            {
+                var medias = _db.GetMediasFromDb();
+                Console.Clear();
+                Console.WriteLine("Pick which media type you are looking for:");
+                medias.ForEach(library => 
+                    Console.WriteLine($"{library.Id}. {library.Name}"));
+                if (int.TryParse(Console.ReadLine(), out int mediaChoice))
+                {
+                    if (mediaChoice <= medias.Count && mediaChoice > 0)
+                    {
+                        Console.Clear();
+                        _db.GetBooksWhereMediaFromDb(mediaChoice).ForEach(book => 
+                            Console.WriteLine(book.GetBookString()));
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Error!");
+                    }
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Error!");
+                }
+            }
             else if (result == 9)
             {
                 _programState = ProgramState.StartMenu;
