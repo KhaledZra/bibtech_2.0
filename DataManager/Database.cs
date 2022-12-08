@@ -55,7 +55,7 @@ public class Database
         return false;
     }
 
-    public Book GetBookFromDb(int id)
+    public Book GetBookJoinMediaFromDb(int id)
     {
         string sqlCode = $"SELECT b.*, m.* FROM book b INNER JOIN media m on b.media_id = m.id WHERE b.id = {id};";
 
@@ -70,9 +70,82 @@ public class Database
         return result.ToList().FirstOrDefault();
     }
     
-    public List<Book> GetBooksFromDb()
+    public List<Book> GetBooksJoinMediaAndLibraryFromDb(bool isCheckForAvailability = false, int whereLibId = 0)
     {
-        string sqlCode = $"SELECT b.*, m.* FROM book b INNER JOIN media m on b.media_id = m.id;";
+        string sqlCode;
+        
+        if (isCheckForAvailability && whereLibId != 0)
+        {
+            sqlCode = "SELECT b.*, m.*, l.* " +
+                      "FROM book b " +
+                      "INNER JOIN media m on b.media_id = m.id " +
+                      "INNER JOIN library l on b.library_id = l.id " +
+                      $"WHERE B.is_available = 1 AND b.library_id = {whereLibId};";
+        }
+        else if (isCheckForAvailability && whereLibId == 0)
+        {
+            sqlCode = "SELECT b.*, m.*, l.* " +
+                      "FROM book b " +
+                      "INNER JOIN media m on b.media_id = m.id " +
+                      "INNER JOIN library l on b.library_id = l.id " +
+                      $"WHERE B.is_available = 1;";
+        }
+        else
+        {
+            sqlCode = "SELECT b.*, m.*, l.* " +
+                      "FROM book b " +
+                      "INNER JOIN media m on b.media_id = m.id " +
+                      "INNER JOIN library l on b.library_id = l.id;";
+        }
+
+        var result =_mySqlConnection.Query<Book, Media, Library, Book>(sqlCode, (b, m, l) =>
+            {
+                b.MediaType = m;
+                b.LibraryInfo = l;
+                return b;
+            },
+            splitOn: "library_id, name"
+        ).AsQueryable();
+
+        return result.ToList();
+    }
+    
+    public List<Book> GetBooksWhereLibFromDb(int whereLibId, bool isCheckForAvailability = false)
+    {
+        string sqlCode;
+        
+        if (isCheckForAvailability && whereLibId != 0)
+        {
+            sqlCode = "SELECT b.*, m.*, l.* " +
+                      "FROM book b " +
+                      "INNER JOIN media m on b.media_id = m.id " +
+                      "INNER JOIN library l on b.library_id = l.id " +
+                      $"WHERE b.is_available = 1 AND b.library_id = {whereLibId};";
+        }
+        else
+        {
+            sqlCode = "SELECT b.*, m.*, l.* " +
+                      "FROM book b " +
+                      "INNER JOIN media m on b.media_id = m.id " +
+                      "INNER JOIN library l on b.library_id = l.id " +
+                      $"WHERE b.library_id = {whereLibId};";
+        }
+
+        var result =_mySqlConnection.Query<Book, Media, Library, Book>(sqlCode, (b, m, l) =>
+            {
+                b.MediaType = m;
+                b.LibraryInfo = l;
+                return b;
+            },
+            splitOn: "library_id, name"
+        ).AsQueryable();
+
+        return result.ToList();
+    }
+    
+    public List<Book> GetBooksJoinMediasFromDb()
+    {
+        string sqlCode = "SELECT b.*, m.* FROM book b INNER JOIN media m on b.media_id = m.id;";
 
         var result =_mySqlConnection.Query<Book, Media, Book>(sqlCode, (b, m) =>
             {
@@ -83,5 +156,10 @@ public class Database
         ).AsQueryable();
 
         return result.ToList();
+    }
+
+    public List<Library> GetLibrariesFromDb()
+    {
+        return _mySqlConnection.Query<Library>("SELECT * FROM library").ToList();
     }
 }

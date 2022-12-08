@@ -9,7 +9,7 @@ public class Library : Entity, ILibrary
     public string City { get; set; }
 
     // Load contructor for Dapper/Db
-    public Library(int id, string name, string adress, string city)
+    public Library()
     {
         
     }

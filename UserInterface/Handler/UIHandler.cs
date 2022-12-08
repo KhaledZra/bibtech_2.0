@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using DataManager;
 using ProgramLogic.Model;
 using UserInterface.ConsoleHandler;
@@ -69,12 +70,53 @@ public class UIHandler
         else if (_programState == ProgramState.MainMenu)
         {
             Console.WriteLine($"Hello {_loggedInAccount.FirstName}. Welcome to bibtech 2.0!");
-            Console.WriteLine("3. Log out");
+            Console.WriteLine("1. Show all books");
+            Console.WriteLine("2. Show all available books");
+            Console.WriteLine("3. Show all books from a specific library");
+            Console.WriteLine("4. Show all books with specific media type");
+            Console.WriteLine("9. Log out");
             Console.Write("Choice: ");
             int.TryParse(Console.ReadLine(), out int result);
             Console.Clear();
 
-            if (result == 3)
+            if (result == 1)
+            {
+                _db.GetBooksJoinMediaAndLibraryFromDb().ForEach(book => 
+                    Console.WriteLine(book.GetBookString()));
+            }
+            else if (result == 2)
+            {
+                _db.GetBooksJoinMediaAndLibraryFromDb(true).ForEach(book =>
+                    Console.WriteLine(book.GetBookString()));
+            }
+            else if (result == 3)
+            {
+                var libs = _db.GetLibrariesFromDb();
+                Console.Clear();
+                Console.WriteLine("Pick a library to see what books they have to offer:");
+                libs.ForEach(library => 
+                    Console.WriteLine($"{library.Id}. {library.Name}"));
+                if (int.TryParse(Console.ReadLine(), out int libChoice))
+                {
+                    if (libChoice <= libs.Count && libChoice > 0)
+                    {
+                        Console.Clear();
+                        _db.GetBooksWhereLibFromDb(libChoice).ForEach(book => 
+                            Console.WriteLine(book.GetBookString()));
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Error!");
+                    }
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Error!");
+                }
+            }
+            else if (result == 9)
             {
                 _programState = ProgramState.StartMenu;
                 _loggedInAccount = null;

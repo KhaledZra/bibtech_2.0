@@ -12,9 +12,13 @@ internal class Program
         Database db = new Database();
         UIHandler uiController = new UIHandler();
 
-        //uiController.RunProgram();
+        uiController.RunProgram();
+        //Something?.Print() == if (Something != null) Something.Print();
 
-        db.GetBooksFromDb().ForEach(book => Console.WriteLine($"Title: {book.Title}, Media: {book.MediaType.Name}"));
+        // db.GetBooksJoinMediaAndLibraryFromDb().ForEach(book => 
+        //     Console.WriteLine($"Title: {book.Title}," +
+        //                       $" Media: {book.MediaType.Name}," +
+        //                       $" Library Name: {book.LibraryInfo.Name}"));
         
     }
 }
