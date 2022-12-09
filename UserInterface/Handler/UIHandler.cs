@@ -30,7 +30,6 @@ public class UIHandler
         if (_programState == ProgramState.StartMenu)
         {
             Output.StartMenu();
-
             int.TryParse(Console.ReadLine(), out int result);
             Console.Clear();
 
@@ -63,17 +62,19 @@ public class UIHandler
             else
             {
                 Console.WriteLine("Failed to login! Incorrect Id or Pin code!");
-                Console.WriteLine("--------");
                 _programState = ProgramState.StartMenu;
             }
         }
         else if (_programState == ProgramState.MainMenu)
         {
+            Console.WriteLine("--------");
             Console.WriteLine($"Hello {_loggedInAccount.FirstName}. Welcome to bibtech 2.0!");
             Console.WriteLine("1. Show all books");
             Console.WriteLine("2. Show all available books");
             Console.WriteLine("3. Show all books from a specific library");
             Console.WriteLine("4. Show all books with specific media type");
+            Console.WriteLine("5. Order & Get a book from your chosen store!");
+            Console.WriteLine("6. Show all your active loans");
             Console.WriteLine("9. Log out");
             Console.Write("Choice: ");
             int.TryParse(Console.ReadLine(), out int result);
@@ -141,6 +142,77 @@ public class UIHandler
                 {
                     Console.Clear();
                     Console.WriteLine("Error!");
+                }
+            }
+            else if (result == 5)
+            {
+                var libs = _db.GetLibrariesFromDb();
+                Console.Clear();
+                Console.WriteLine("Pick which Library you wanna order from");
+                libs.ForEach(library => 
+                    Console.WriteLine($"{library.Id}. {library.Name}"));
+                
+                if (int.TryParse(Console.ReadLine(), out int libChoice))
+                {
+                    if (libChoice <= libs.Count && libChoice > 0)
+                    {
+                        Console.Clear();
+                        var books = _db.GetBooksWhereLibFromDb(libChoice, true);
+                        
+                        books.ForEach(book => 
+                            Console.WriteLine(book.GetBookString()));
+                        Console.WriteLine("Enter 0 to cancel!");
+                        Console.Write("Pick with ISBN:");
+                        if (int.TryParse(Console.ReadLine(), out int isbnChoice))
+                        {
+                            if (isbnChoice == 0)
+                            {
+                                Console.Clear();
+                                Console.WriteLine("Cancelled!");
+                                return true;
+                            }
+                            
+                            var pickedBook = books.Where(b => b.IsAvailable && b.Id == isbnChoice).ToList().FirstOrDefault();
+                            if (pickedBook != null)
+                            {
+                                _db.UpdateBookAvailability(false, pickedBook.Id);
+                                _db.InsertLoanToDb(new Loan(pickedBook.Id, _loggedInAccount.Id));
+                                Console.Clear();
+                                Console.WriteLine("Loan created! Please remember to pickup your book within 24 hours!");
+                                Console.WriteLine("If 24 hours passes and you fail to pickup the loan will be cancelled!");
+                            }
+                            else
+                            {
+                                Console.Clear();
+                                Console.WriteLine("Error!");
+                            }
+                        }
+                        else
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Error!");
+                        }
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Error!");
+                    }
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Error!");
+                }
+            }
+            else if (result == 6)
+            {
+                foreach (var loan in _db.GetJoinedCustomerBookLoansFromDb(_loggedInAccount.Id))
+                {
+                    if (loan.IsReturned == false)
+                    {
+                        Console.WriteLine(loan.GetLoanString());
+                    }
                 }
             }
             else if (result == 9)

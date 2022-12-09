@@ -32,4 +32,9 @@ public class Account : Entity, IAccount
         Email = email;
         PhoneNumber = phoneNumber;
     }
+
+    public Account()
+    {
+        
+    }
 }

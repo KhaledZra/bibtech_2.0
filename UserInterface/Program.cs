@@ -10,9 +10,9 @@ internal class Program
     static void Main(string[] args)
     {
         Database db = new Database();
-        UIHandler uiController = new UIHandler();
+        UIHandler uiHandler = new UIHandler();
 
-        uiController.RunProgram();
+        uiHandler.RunProgram();
         //Something?.Print() == if (Something != null) Something.Print();
 
         // db.GetBooksJoinMediaAndLibraryFromDb().ForEach(book => 

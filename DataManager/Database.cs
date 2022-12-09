@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace DataManager;
 
 using MySqlConnector;
@@ -200,5 +202,43 @@ public class Database
     public List<Media> GetMediasFromDb()
     {
         return _mySqlConnection.Query<Media>("SELECT * FROM media").ToList();
+    }
+
+    public List<Loan> GetLoansFromDb()
+    {
+        return _mySqlConnection.Query<Loan>("SELECT * FROM loan").ToList();
+    }
+    
+    public List<Loan> GetJoinedCustomerBookLoansFromDb(int customerId)
+    {
+        string sqlCode = "SELECT l.*, b.*, c.* FROM loan l " +
+                         "INNER JOIN book b ON l.book_id = b.id " +
+                         "INNER JOIN customer c ON l.customer_id = c.id "+
+                         $"WHERE l.customer_id = {customerId};";
+        
+        
+        var result = _mySqlConnection.Query<Loan, Book, Account, Loan>(sqlCode,
+            (l, b, c) =>
+            {
+                l.LoanedBook = b;
+                l.Customer = c;
+                return l;
+            },
+            splitOn: "customer_id, library_id"
+            ).AsQueryable();
+
+        return result.ToList();
+    }
+
+    public void InsertLoanToDb(Loan loan)
+    {
+        string sqlCode = @"INSERT INTO loan (start_date, due_date, is_returned, book_id, customer_id)
+                            values (@StartDate, @DueDate, @IsReturned, @BookId, @CustomerId);";
+        _mySqlConnection.Execute(sqlCode, loan);
+    }
+
+    public void UpdateBookAvailability(bool isAvailable, int bookId)
+    {
+        _mySqlConnection.Execute($"UPDATE book SET book.is_available = {isAvailable} WHERE book.id = {bookId}");
     }
 }
