@@ -74,8 +74,10 @@ public class UIHandler
             Console.WriteLine("3. Show all books from a specific library");
             Console.WriteLine("4. Show all books with specific media type");
             Console.WriteLine("5. Order & Get a book from your chosen store!");
-            Console.WriteLine("6. Show all your active loans");
-            Console.WriteLine("9. Log out");
+            Console.WriteLine("6. Show your active loans");
+            Console.WriteLine("7. Show your loan history");
+            Console.WriteLine("8. *Employee feature* Return book");
+            Console.WriteLine("0. Log out");
             Console.Write("Choice: ");
             int.TryParse(Console.ReadLine(), out int result);
             Console.Clear();
@@ -215,7 +217,63 @@ public class UIHandler
                     }
                 }
             }
-            else if (result == 9)
+            else if (result == 7)
+            {
+                _db.GetJoinedCustomerBookLoansFromDb(_loggedInAccount.Id).ForEach(loan => 
+                    Console.WriteLine(loan.GetLoanString()));
+            }
+            else if (result == 8)
+            {
+                var loans = _db.GetJoinedCustomerBookLoansFromDb(_loggedInAccount.Id);
+
+                if (!loans.Exists(loan => loan.IsReturned == false))
+                {
+                    Console.WriteLine("No loans found");
+                    return true;
+                }
+                
+                foreach (var loan in _db.GetJoinedCustomerBookLoansFromDb(_loggedInAccount.Id))
+                {
+                    if (loan.IsReturned == false)
+                    {
+                        Console.WriteLine(loan.GetLoanString());
+                    }
+                }
+
+                Console.WriteLine("Pick which loan Id, you wish to return!");
+                Console.WriteLine("Enter 0 to return!");
+                Console.Write("Choice: ");
+                if (int.TryParse(Console.ReadLine(), out int loanChoice))
+                {
+                    if (loanChoice == 0)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Going back!");
+                        return true;
+                    }
+                    
+                    if (loans.Exists(loan => loan.Id == loanChoice && loan.IsReturned == false))
+                    {
+                        Loan loan = loans.Where(loan => loan.Id == loanChoice).ToList().FirstOrDefault();
+                        loan.SetReturnDate();
+                        _db.UpdateBookAvailability(true, loan.BookId);
+                        _db.UpdateCompleteLoanToDb(loan);
+                        Console.Clear();
+                        Console.WriteLine("Book successfully returned!");
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Failed!");
+                    }
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Failed!");
+                }
+            }
+            else if (result == 0)
             {
                 _programState = ProgramState.StartMenu;
                 _loggedInAccount = null;

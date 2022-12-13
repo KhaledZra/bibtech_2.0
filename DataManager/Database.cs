@@ -16,6 +16,7 @@ public class Database
     {
         DefaultTypeMap.MatchNamesWithUnderscores = true;
         
+        
         _mySqlConnectionStringBuilder = new MySqlConnectionStringBuilder()
         {
             Server = "localhost",
@@ -23,8 +24,8 @@ public class Database
             UserID = "root"
         };
         
-        _mySqlConnection = new MySqlConnection(_mySqlConnectionStringBuilder.ConnectionString);
-        
+        _mySqlConnection = new MySqlConnection(_mySqlConnectionStringBuilder.ConnectionString + ";convert zero datetime=True;");
+
         try
         {
             _mySqlConnection.Open(); // Checks if connection can be opened
@@ -208,6 +209,12 @@ public class Database
     {
         return _mySqlConnection.Query<Loan>("SELECT * FROM loan").ToList();
     }
+
+    public DateTime GetLoanReturnDateFromDb(int loanId)
+    {
+        string sqlCode = $"SELECT loan.returned_date FROM loan WHERE id = {loanId};";
+        return _mySqlConnection.Query<DateTime>(sqlCode).ToList().FirstOrDefault();
+    }
     
     public List<Loan> GetJoinedCustomerBookLoansFromDb(int customerId)
     {
@@ -217,23 +224,35 @@ public class Database
                          $"WHERE l.customer_id = {customerId};";
         
         
-        var result = _mySqlConnection.Query<Loan, Book, Account, Loan>(sqlCode,
+        var results = _mySqlConnection.Query<Loan, Book, Account, Loan>(sqlCode,
             (l, b, c) =>
             {
                 l.LoanedBook = b;
                 l.Customer = c;
                 return l;
             },
-            splitOn: "customer_id, library_id"
+            splitOn: "returned_date, library_id"
             ).AsQueryable();
 
-        return result.ToList();
+        foreach (var loan in results)
+        {
+            loan.ReturnedDate = GetLoanReturnDateFromDb(loan.Id);
+        }
+
+        return results.ToList();
     }
 
     public void InsertLoanToDb(Loan loan)
     {
         string sqlCode = @"INSERT INTO loan (start_date, due_date, is_returned, book_id, customer_id)
                             values (@StartDate, @DueDate, @IsReturned, @BookId, @CustomerId);";
+        _mySqlConnection.Execute(sqlCode, loan);
+    }
+    
+    public void UpdateCompleteLoanToDb(Loan loan)
+    {
+        string sqlCode = $"UPDATE loan SET is_returned = true, returned_date = @ReturnedDate WHERE loan.id = @Id";
+        
         _mySqlConnection.Execute(sqlCode, loan);
     }
 
