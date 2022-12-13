@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2022 at 12:12 AM
+-- Generation Time: Dec 13, 2022 at 01:32 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -179,8 +179,18 @@ CREATE TABLE `loan` (
   `due_date` date DEFAULT NULL,
   `is_returned` tinyint(1) NOT NULL,
   `book_id` int(11) NOT NULL,
-  `customer_id` int(11) NOT NULL
+  `customer_id` int(11) NOT NULL,
+  `returned_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `loan`
+--
+
+INSERT INTO `loan` (`id`, `start_date`, `due_date`, `is_returned`, `book_id`, `customer_id`, `returned_date`) VALUES
+(1, '2022-12-13', '2023-01-13', 1, 7, 1, '2022-12-13'),
+(2, '2022-12-13', '2023-01-13', 1, 8, 3, '2022-12-13'),
+(3, '2022-12-13', '2023-01-13', 1, 1, 3, '2022-12-13');
 
 -- --------------------------------------------------------
 
@@ -298,7 +308,7 @@ ALTER TABLE `library`
 -- AUTO_INCREMENT for table `loan`
 --
 ALTER TABLE `loan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `media`
